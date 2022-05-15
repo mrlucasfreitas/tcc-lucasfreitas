@@ -6,7 +6,7 @@ pipeline {
   }
 
   parameters {
-    choice(name: 'action', choices: ['create','plan','destroy'], description: 'Ação do Terraform')
+    choice(name: 'action', choices: ['apply','plan','destroy'], description: 'Ação do Terraform')
     choice(name: 'instances', choices: ['1','2','3','4','5'], description: 'Número de instâncias')
   }
 
@@ -42,13 +42,25 @@ pipeline {
 
     stage("[Terraform] Executando criação/destruição/visualização"){
       steps {
-        sh """
-        export AWS_PROFILE=${PROFILE}
-        cd terraform-aws-ec2-instance/
-        terraform init -upgrade
-        terraform ${TF_ACTION} -auto-approve -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
-        cd ../
-        """
+        script {
+          def tfOption = params.action
+          if ( tfOption == 'plan' ) {
+              terraformExec = 'terraform plan'
+          }
+          if ( tfOption == 'apply' ) {
+              terraformExec = 'terraform apply -auto-approve'
+          }
+          if ( tfOption == 'destroy' ) {
+              terraformExec = 'terraform destroy -auto-approve'
+          }
+          sh """
+          export AWS_PROFILE=${PROFILE}
+          cd terraform-aws-ec2-instance/
+          terraform init -upgrade
+          ${terraformExec} -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
+          cd ../
+          """
+        }
       }
     }
 
@@ -63,9 +75,14 @@ pipeline {
 
     stage("[Shell] Identificando IPs públicos") {
       steps {
-        sh """
-        ./ansible-stack/scripts/generate_hosts_ini.sh
-        """
+        script {
+          def tfOption = params.action
+          if ( tfOption == 'apply' ) {
+            sh """
+            ./ansible-stack/scripts/generate_hosts_ini.sh
+            """
+          }
+        }
       }
     }
 
@@ -78,18 +95,28 @@ pipeline {
         }
       }
       steps {
-        sh """
-        cd /home/ansible-stack/
-        ansible-playbook plays/nginx.yml -i environments/aws/hosts.ini -l webserver --private-key=~/.ssh/${SSH_KEY}
-        """
+        script {
+          def tfOption = params.action
+          if ( tfOption == 'apply' ) {
+            sh """
+            cd /home/ansible-stack/
+            ansible-playbook plays/nginx.yml -i environments/aws/hosts.ini -l webserver --private-key=~/.ssh/${SSH_KEY}
+            """
+          }
+        }
       }
     }
 
     stage("[Teste] Acessando paginas WEB") {
       steps {
-        sh """
-        ./ansible-stack/scripts/test-sites.sh
-        """
+        script {
+          def tfOption = params.action
+          if ( tfOption == 'apply' ) {
+            sh """
+            ./ansible-stack/scripts/test-sites.sh
+            """
+          }
+        }
       }
     }
   }
