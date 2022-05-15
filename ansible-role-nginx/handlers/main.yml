@@ -1,0 +1,20 @@
+---
+- name: Check syntax
+  command: nginx -t
+  changed_when: false
+  check_mode: no
+  listen:
+    - Reload nginx
+    - Restart nginx
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded
+  when: nginx_enable|bool
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+  when: nginx_enable|bool

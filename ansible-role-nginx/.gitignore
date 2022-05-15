@@ -1,0 +1,14 @@
+# Temp
+*.retry
+*~
+*.bak
+
+# Vagrant
+.vagrant/
+*.log
+
+# Terraform
+eips.txt
+
+# Hosts.ini
+environments/aws/hosts.ini

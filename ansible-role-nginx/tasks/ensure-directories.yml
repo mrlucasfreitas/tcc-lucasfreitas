@@ -1,0 +1,17 @@
+---
+- name: Create conf.d directory
+  file:
+    path: "{{ nginx_conf_dir }}/conf.d"
+    state: directory
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0755"
+
+- name: Create log directory
+  file:
+    path: "{{ nginx_log_dir }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0755"
+  when: ansible_os_family == "RedHat"

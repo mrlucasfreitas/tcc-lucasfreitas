@@ -1,0 +1,47 @@
+---
+- name: Create nginx.conf
+  template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_conf_dir }}/nginx.conf"
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0644"
+  notify: Restart nginx
+
+- name: Configure sites
+  template:
+    src: "{{ item.value.template | default('site.conf.j2') }}"
+    dest: "{{ nginx_conf_dir }}/conf.d/{{ item.key }}.conf"
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0644"
+  with_dict: "{{ nginx_sites }}"
+  notify: Reload nginx
+
+- name: Configure site default
+  template:
+    src: "{{ item.value.template | default('site.conf.j2') }}"
+    dest: "{{ nginx_conf_dir }}/conf.d/{{ item.key }}.conf"
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0644"
+  with_dict: "{{ nginx_default_sites }}"
+  notify: Reload nginx
+
+- name: Creates directory site default
+  file:
+    path: /var/www/01-default/www
+    state: directory
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0755"
+  notify: Reload nginx
+
+- name: Copy default index.html
+  copy: 
+    src: index.html
+    dest: /var/www/01-default/www/
+    owner: "{{ nginx_conf_user }}"
+    group: "{{ nginx_conf_group }}"
+    mode: "0644"
+  notify: Reload nginx

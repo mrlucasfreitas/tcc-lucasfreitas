@@ -1,0 +1,6 @@
+# Gerenciado via Ansible
+
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/{{ "rhel" if ansible_distribution == "RedHat" else "centos" }}/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/
+enabled=1

@@ -1,0 +1,20 @@
+---
+nginx_enable: true
+
+nginx_configure_selinux: false
+
+nginx_default_sites:
+  default:
+    - listen 80 default_server
+    - server_name ""
+    - root "/var/www/01-default/www"
+    - location / { index index.html; }
+  default_ips:
+    - listen 80
+    - server_name {{ ansible_all_ipv4_addresses | join(" ") }}
+    - root "/var/www/01-default/www"
+    - location / { index index.html; }
+
+nginx_upstreams: []
+
+nginx_sites: {}

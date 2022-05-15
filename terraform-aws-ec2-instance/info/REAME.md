@@ -1,0 +1,1 @@
+## As informacoes de IPs publicos para execucao do Ansible estarao neste diretorio.

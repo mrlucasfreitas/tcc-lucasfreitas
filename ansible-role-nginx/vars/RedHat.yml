@@ -1,0 +1,8 @@
+---
+nginx_user: "nginx"
+nginx_group: "nginx"
+
+nginx_conf_user: "root"
+nginx_conf_group: "root"
+
+nginx_conf_dir: /etc/nginx

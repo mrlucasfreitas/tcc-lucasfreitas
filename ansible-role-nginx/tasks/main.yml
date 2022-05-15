@@ -1,0 +1,28 @@
+---
+- include_vars: "{{ ansible_os_family }}.yml"
+  name: Include OS variables
+  tags: always
+
+- include: selinux.yml
+  when: nginx_configure_selinux and ansible_os_family == "RedHat"
+
+- include: "install-{{ ansible_os_family }}.yml"
+
+- include: ensure-directories.yml
+
+- include: configure.yml
+
+- name: Enable and start service
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+    use: service
+  when: nginx_enable|bool
+
+- name: Disable service
+  service:
+    name: nginx
+    state: stopped
+    enabled: no
+  when: not nginx_enable

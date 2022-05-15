@@ -1,0 +1,30 @@
+---
+- name: Add Repo key official
+  rpm_key:
+    key: "http://nginx.org/keys/nginx_signing.key"
+    state: present
+  register: key_install
+  until: key_install is succeeded
+  when: ansible_os_family == "RedHat"
+
+- name: Install and enable repo
+  template:
+    src: nginx.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+    owner: root
+    group: root
+    mode: "0644"
+  when: ansible_os_family == "RedHat" and ansible_distribution != "Amazon"
+
+- name: Enable NGINX (Amazonlinux)
+  shell: "sudo amazon-linux-extras enable nginx1"
+  changed_when: false
+  when: ansible_os_family == "RedHat" and ansible_distribution == "Amazon"
+
+- name: Install nginx
+  package:
+    name: nginx
+    state: present
+  register: pkg_install
+  until: pkg_install is succeeded
+  when: ansible_os_family == "RedHat"

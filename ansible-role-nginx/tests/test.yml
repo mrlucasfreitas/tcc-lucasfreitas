@@ -1,0 +1,22 @@
+---
+- name: Install nginx web server
+  hosts: amazonlinux2
+  become: yes
+  remote_user: vagrant
+  roles:
+    - ansible-role-nginx
+  vars:
+    nginx_configure_selinux: true
+
+    nginx_enable: true
+
+    nginx_upstreams: []
+
+    nginx_sites:
+      example.com:
+        - listen 80
+        - server_name exemplo.com
+        - root "/var/www/example.com/www"
+        - location / { return 301 https://www.google.com.br; }
+        - error_log   /var/log/nginx/example.error.log   notice
+        - access_log  /var/log/nginx/example.access.log  main
