@@ -86,7 +86,7 @@ pipeline {
     stage("[Teste] Acessando paginas WEB") {
       steps {
         sh """
-        ./ansible-stack/scripts/test_sites.sh
+        ./ansible-stack/scripts/test-sites.sh
         """
       }
     }
