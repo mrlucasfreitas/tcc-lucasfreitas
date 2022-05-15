@@ -56,7 +56,7 @@ pipeline {
     stage("[Shell] Identificando IPs públicos") {
       steps {
         sh """
-        echo aa
+        ./ansible-stack/scripts/generate_hosts_ini.sh
         """
       }
     }
@@ -64,7 +64,15 @@ pipeline {
     stage("[Ansible] Configurando website") {
       steps {
         sh """
-        echo bb
+        ansible-playbook plays/nginx.yml -i environments/aws/hosts.ini -l webserver --private-key=~/.ssh/tcc_id_rsa
+        """
+      }
+    }
+
+    stage("[Teste] Acessando paginas WEB") {
+      steps {
+        sh """
+        echo cc
         """
       }
     }
