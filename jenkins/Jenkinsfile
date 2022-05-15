@@ -6,12 +6,14 @@ pipeline {
   }
 
   parameters {
+    choice(name: 'action', choices: ['create','plan','destroy'], description: 'Ação do Terraform')
     choice(name: 'instances', choices: ['1','2','3','4','5'], description: 'Número de instâncias')
   }
 
   environment {
     GITURL = "https://github.com/mrlucasfreitas/tcc-lucasfreitas.git"
     GITBRANCH = "main"
+    TF_ACTION = "${params.action}"
     NUM_INSTANCES = "${params.instances}"
     PROFILE = "hmg"
     JENKINS_DIR = "/var/lib/jenkins"
@@ -38,13 +40,13 @@ pipeline {
       }
     }
 
-    stage("[Terraform] Criando instâncias"){
+    stage("[Terraform] Executando criação/destruição/visualização"){
       steps {
         sh """
         export AWS_PROFILE=${PROFILE}
         cd terraform-aws-ec2-instance/
         terraform init -upgrade
-        terraform apply -auto-approve -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
+        terraform ${TF_ACTION} -auto-approve -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
         cd ../
         """
       }
