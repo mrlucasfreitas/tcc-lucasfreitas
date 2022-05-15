@@ -3,10 +3,12 @@
 BASEDIR=$(dirname $0)
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 
+eipsfile="terraform-aws-ec2-instance/info/eips.txt"
+
 i=0
 {
 printf "[webserver]"
-for x in $(cat $DIR/../../terraform-aws-ec2-instance/info/eips.txt); do echo
+for x in $(cat $DIR/../../${eipsfile}); do echo
     i=$((i+1))
     printf "webserver$i ansible_host=$x ansible_user=ec2-user"
 done

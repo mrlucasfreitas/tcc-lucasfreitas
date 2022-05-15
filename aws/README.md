@@ -1,0 +1,2 @@
+# AWS
+Nesta pasta consta o arquivo de [policy](./policy.json), na qual contém as permissões necessárias que devem ser aplicadas na AWS para a execução correta do [Terraform](../terraform-aws-ec2-instance).

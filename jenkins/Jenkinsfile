@@ -10,23 +10,27 @@ pipeline {
   }
 
   environment {
-    gitUrlProject = "https://github.com/mrlucasfreitas/tcc-lucasfreitas.git"
-    gitBranch = "main"
-
+    GITURL = "https://github.com/mrlucasfreitas/tcc-lucasfreitas.git"
+    GITBRANCH = "main"
     NUM_INSTANCES = "${params.instances}"
+    PROFILE = "hmg"
+    JENKINS_DIR = "/var/lib/jenkins"
+    SSH_PATH = "${JENKINS_DIR}/.ssh"
+    SSH_KEY = "tcc_id_rsa"
   }
 
   stages {
 
     stage("[Git] Clonando projeto") {
       steps {
-        git branch: "${gitBranch}", credentialsId: 'GIT_TOKEN', url: "${gitUrlProject}"
+        git branch: "${GITBRANCH}", credentialsId: 'GIT_TOKEN', url: "${GITURL}"
       }
     }
 
     stage("[Terraform] Sincronizando TF State") {
       steps {
         sh """
+        export AWS_PROFILE=${PROFILE}
         cd terraform-aws-ec2-instance/
         aws s3 sync s3://tcc-lucasfreitas/tfstate .
         cd ../
@@ -37,18 +41,20 @@ pipeline {
     stage("[Terraform] Criando instâncias"){
       steps {
         sh """
+        export AWS_PROFILE=${PROFILE}
         cd terraform-aws-ec2-instance/
         terraform init -upgrade
-        terraform plan -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
+        terraform apply -auto-approve -var-file=ec2.tfvars --var num_of_instances="${NUM_INSTANCES}"
         cd ../
         """
       }
     }
 
-    stage("[Terraform] Sincronizando TF State") {
+    stage("[Terraform] Resincronizando TF State") {
       steps {
         sh """
-        aws s3 sync terraform-aws-ec2-instance s3://tcc-lucasfreitas/tfstate --exclude='*' --include='*/terraform.tfstate' --include='*/terraform.tfstate.backup'
+        export AWS_PROFILE=${PROFILE}
+        aws s3 sync terraform-aws-ec2-instance s3://tcc-lucasfreitas/tfstate --exclude='*' --include='terraform.tfstate' --include='terraform.tfstate.backup'
         """
       }
     }
@@ -62,9 +68,17 @@ pipeline {
     }
 
     stage("[Ansible] Configurando website") {
+      agent {
+        docker {
+          image 'mrlucasfreitas/ansible:2.9.11' 
+          args "-u root -v ${JENKINS_DIR}/workspace/${JOB_NAME}:/home -v ${SSH_PATH}/${SSH_KEY}:/root/.ssh/${SSH_KEY}"
+          reuseNode false
+        }
+      }
       steps {
         sh """
-        ansible-playbook plays/nginx.yml -i environments/aws/hosts.ini -l webserver --private-key=~/.ssh/tcc_id_rsa
+        cd /home/ansible-stack/
+        ansible-playbook plays/nginx.yml -i environments/aws/hosts.ini -l webserver --private-key=~/.ssh/${SSH_KEY}
         """
       }
     }
@@ -72,7 +86,7 @@ pipeline {
     stage("[Teste] Acessando paginas WEB") {
       steps {
         sh """
-        echo cc
+        ./ansible-stack/scripts/test_sites.sh
         """
       }
     }
