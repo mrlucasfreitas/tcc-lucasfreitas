@@ -1,6 +1,6 @@
 ---
-- name: Create nginx.conf
-  template:
+- name: "Create nginx.conf"
+  ansible.builtin.template:
     src: nginx.conf.j2
     dest: "{{ nginx_conf_dir }}/nginx.conf"
     owner: "{{ nginx_conf_user }}"
@@ -9,7 +9,7 @@
   notify: Restart nginx
 
 - name: Configure sites
-  template:
+  ansible.builtin.template:
     src: "{{ item.value.template | default('site.conf.j2') }}"
     dest: "{{ nginx_conf_dir }}/conf.d/{{ item.key }}.conf"
     owner: "{{ nginx_conf_user }}"
@@ -19,7 +19,7 @@
   notify: Reload nginx
 
 - name: Configure site default
-  template:
+  ansible.builtin.template:
     src: "{{ item.value.template | default('site.conf.j2') }}"
     dest: "{{ nginx_conf_dir }}/conf.d/{{ item.key }}.conf"
     owner: "{{ nginx_conf_user }}"
@@ -29,7 +29,7 @@
   notify: Reload nginx
 
 - name: Creates directory site default
-  file:
+  ansible.builtin.file:
     path: /var/www/01-default/www
     state: directory
     owner: "{{ nginx_conf_user }}"
@@ -38,7 +38,7 @@
   notify: Reload nginx
 
 - name: Copy default index.html
-  copy: 
+  ansible.builtin.copy:
     src: index.html
     dest: /var/www/01-default/www/
     owner: "{{ nginx_conf_user }}"

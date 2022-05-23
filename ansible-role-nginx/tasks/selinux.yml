@@ -1,6 +1,6 @@
 ---
 - name: Install Python packages to SELinux (RHEL 7)
-  yum:
+  ansible.builtin.yum:
     name:
       - libselinux-python
       - libsemanage-python
@@ -11,8 +11,9 @@
   delay: 10
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version is version("8",'<')
 
+
 - name: Install Python packages to SELinux (RHEL 8)
-  yum:
+  ansible.builtin.yum:
     name:
       - python3-libselinux
       - python3-libsemanage

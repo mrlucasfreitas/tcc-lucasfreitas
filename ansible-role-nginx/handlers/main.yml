@@ -1,20 +1,20 @@
 ---
 - name: Check syntax
-  command: nginx -t
+  ansible.builtin.command: nginx -t
   changed_when: false
-  check_mode: no
+  check_mode: false
   listen:
     - Reload nginx
     - Restart nginx
 
 - name: Reload nginx
-  service:
+  ansible.builtin.service:
     name: nginx
     state: reloaded
   when: nginx_enable|bool
 
 - name: Restart nginx
-  service:
+  ansible.builtin.service:
     name: nginx
     state: restarted
   when: nginx_enable|bool
