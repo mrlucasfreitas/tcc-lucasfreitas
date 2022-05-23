@@ -1,6 +1,6 @@
 ---
 - name: Check syntax
-  ansible.builtin.command: nginx -t
+  ansible.builtin.command: "nginx -t"
   changed_when: false
   check_mode: false
   listen:
