@@ -112,6 +112,13 @@ resource "aws_instance" "web" {
   key_name      = aws_key_pair.id_rsa.key_name
   user_data     = file("data/so_update.sh")
   availability_zone = var.availability_zone
+  monitoring    = true
+
+  metadata_options{
+    http_endpoint = "enabled"
+    http_put_response_hop_limit = 1
+    http_tokens = "required"
+  }
 
   network_interface {
     network_interface_id = aws_network_interface.interface[count.index].id
