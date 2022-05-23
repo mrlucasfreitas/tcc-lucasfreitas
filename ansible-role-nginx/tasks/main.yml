@@ -13,7 +13,7 @@
 - include: configure.yml
 
 - name: Enable and start service
-  ansible.builtin.service:
+  service:
     name: nginx
     state: started
     enabled: true
@@ -21,7 +21,7 @@
   when: nginx_enable|bool
 
 - name: Disable service
-  ansible.builtin.service:
+  service:
     name: nginx
     state: stopped
     enabled: false

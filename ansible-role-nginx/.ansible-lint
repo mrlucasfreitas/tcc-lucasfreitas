@@ -1,2 +1,5 @@
 exclude_paths:
   - meta/
+
+skip_list:
+  - fqcn-builtins
