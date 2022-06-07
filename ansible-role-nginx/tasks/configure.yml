@@ -38,10 +38,11 @@
   notify: Reload nginx
 
 - name: Copy default index.html
-  copy:
-    src: index.html
-    dest: /var/www/01-default/www/
+  template:
+    src: "index.html.j2"
+    dest: "/var/www/01-default/www/index.html"
     owner: "{{ nginx_conf_user }}"
     group: "{{ nginx_conf_group }}"
     mode: "0644"
   notify: Reload nginx
+  tags: nginx:index

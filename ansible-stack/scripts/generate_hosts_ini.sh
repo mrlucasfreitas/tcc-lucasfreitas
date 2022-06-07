@@ -10,7 +10,7 @@ i=0
 printf "[webserver]"
 for x in $(cat $DIR/../../${eipsfile}); do echo
     i=$((i+1))
-    printf "webserver$i ansible_host=$x ansible_user=ec2-user"
+    printf "webserver$i ansible_host=$x ansible_user=ec2-user nginx_instances=$i"
 done
 
 printf "\n\n"

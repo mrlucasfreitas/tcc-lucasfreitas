@@ -1,4 +1,7 @@
 ---
+# Numero de websites
+nginx_instances: 0
+
 # Ativa/desativa nginx
 nginx_enable: true
 
